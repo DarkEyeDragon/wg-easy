@@ -36,6 +36,7 @@
       >
         <ClientCardSwitch :client="client" />
         <ClientCardEdit :client="client" />
+        <ClientCardDuplicate :client="client" />
         <ClientCardQRCode :client="client" />
         <ClientCardConfig :client="client" />
         <ClientCardOneTimeLinkBtn :client="client" />

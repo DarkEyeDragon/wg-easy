@@ -16,6 +16,20 @@ import { wg } from '#server/utils/wgHelper';
 import type { DBType } from '#db/sqlite';
 import { wgInterface, userConfig } from '#db/schema';
 
+function nextCopyName(name: string, existingNames: string[]) {
+  const taken = new Set(existingNames);
+
+  let candidate = `${name} (copy)`;
+  let n = 2;
+
+  while (taken.has(candidate)) {
+    candidate = `${name} (copy) (${n})`;
+    n++;
+  }
+
+  return candidate;
+}
+
 function createPreparedStatement(db: DBType) {
   return {
     findAll: db.query.client
@@ -209,6 +223,77 @@ export class ClientService {
           i5: clientConfig.defaultI5,
           persistentKeepalive: clientConfig.defaultPersistentKeepalive,
           serverAllowedIps: [],
+          enabled: true,
+        })
+        .returning({ clientId: client.id })
+        .execute();
+    });
+  }
+
+  async duplicate(id: ID) {
+    const source = await this.get(id);
+
+    if (!source) {
+      throw new Error('Client not found');
+    }
+
+    const privateKey = await wg.generatePrivateKey();
+    const publicKey = await wg.getPublicKey(privateKey);
+    const preSharedKey = await wg.generatePreSharedKey();
+
+    return this.#db.transaction(async (tx) => {
+      const clients = await tx.query.client.findMany().execute();
+      const clientInterface = await tx.query.wgInterface
+        .findFirst({
+          where: eq(wgInterface.name, source.interfaceId),
+        })
+        .execute();
+
+      if (!clientInterface) {
+        throw new Error('WireGuard interface not found');
+      }
+
+      const ipv4Cidr = parseCidr(clientInterface.ipv4Cidr);
+      const ipv4Address = nextIP(4, ipv4Cidr, clients);
+      const ipv6Cidr = parseCidr(clientInterface.ipv6Cidr);
+      const ipv6Address = nextIP(6, ipv6Cidr, clients);
+
+      const name = nextCopyName(
+        source.name,
+        clients.map((c) => c.name)
+      );
+
+      return await tx
+        .insert(client)
+        .values({
+          name,
+          userId: source.userId,
+          interfaceId: source.interfaceId,
+          expiresAt: null,
+          privateKey,
+          publicKey,
+          preSharedKey,
+          ipv4Address,
+          ipv6Address,
+          preUp: source.preUp,
+          postUp: source.postUp,
+          preDown: source.preDown,
+          postDown: source.postDown,
+          allowedIps: source.allowedIps,
+          serverAllowedIps: source.serverAllowedIps,
+          firewallIps: source.firewallIps,
+          mtu: source.mtu,
+          jC: source.jC,
+          jMin: source.jMin,
+          jMax: source.jMax,
+          i1: source.i1,
+          i2: source.i2,
+          i3: source.i3,
+          i4: source.i4,
+          i5: source.i5,
+          persistentKeepalive: source.persistentKeepalive,
+          serverEndpoint: source.serverEndpoint,
+          dns: source.dns,
           enabled: true,
         })
         .returning({ clientId: client.id })
