@@ -30,6 +30,46 @@
             />
           </FormGroup>
           <FormGroup>
+            <FormHeading>{{ $t('customer.customer') }}</FormHeading>
+            <div class="col-span-full">
+              <SelectRoot
+                :model-value="customerSelectValue"
+                @update:model-value="onCustomerChange"
+              >
+                <SelectTrigger
+                  class="inline-flex h-8 w-full items-center justify-between gap-2 rounded bg-gray-200 px-3 text-sm leading-none dark:bg-neutral-500 dark:text-neutral-200"
+                >
+                  <SelectValue :placeholder="$t('customer.none')" />
+                  <IconsArrowDown class="size-3" />
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectContent
+                    class="z-[100] min-w-28 rounded bg-gray-300 dark:bg-neutral-500"
+                  >
+                    <SelectViewport class="p-2">
+                      <SelectItem
+                        value="none"
+                        class="relative flex h-6 items-center rounded px-3 text-sm leading-none outline-none hover:bg-red-800 hover:text-white dark:text-white"
+                      >
+                        <SelectItemText>{{
+                          $t('customer.none')
+                        }}</SelectItemText>
+                      </SelectItem>
+                      <SelectItem
+                        v-for="option in customersStore.customers"
+                        :key="option.id"
+                        :value="String(option.id)"
+                        class="relative flex h-6 items-center rounded px-3 text-sm leading-none outline-none hover:bg-red-800 hover:text-white dark:text-white"
+                      >
+                        <SelectItemText>{{ option.name }}</SelectItemText>
+                      </SelectItem>
+                    </SelectViewport>
+                  </SelectContent>
+                </SelectPortal>
+              </SelectRoot>
+            </div>
+          </FormGroup>
+          <FormGroup>
             <FormHeading>{{ $t('client.address') }}</FormHeading>
             <FormTextField
               id="ipv4Address"
@@ -219,6 +259,36 @@ const { data: _data, refresh } = await useFetch(`/api/client/${id}`, {
   method: 'get',
 });
 const data = toRef(_data.value);
+
+const customersStore = useCustomersStore();
+customersStore.refresh();
+
+const customerSelectValue = computed(() =>
+  data.value?.customerId != null ? String(data.value.customerId) : 'none'
+);
+
+const _setCustomer = useSubmit(
+  (body) =>
+    $fetch(`/api/client/${id}/customer`, {
+      method: 'post',
+      body,
+    }),
+  {
+    revert: async () => {
+      await refresh();
+      data.value = toRef(_data.value).value;
+    },
+    noSuccessToast: true,
+  }
+);
+
+function onCustomerChange(value: string | undefined) {
+  if (value === undefined) {
+    return;
+  }
+  const customerId = value === 'none' ? null : Number(value);
+  return _setCustomer({ customerId });
+}
 
 const _submit = useSubmit(
   (data) =>

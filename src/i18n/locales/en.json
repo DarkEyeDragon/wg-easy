@@ -2,6 +2,7 @@
   "pages": {
     "me": "Account",
     "clients": "Clients",
+    "customers": "Customers",
     "admin": {
       "panel": "Admin Panel",
       "general": "General",
@@ -137,6 +138,29 @@
     "downloadPng": "Download PNG",
     "copyPng": "Copy PNG"
   },
+  "customer": {
+    "customer": "Customer",
+    "name": "Name",
+    "none": "None",
+    "new": "New Customer",
+    "newShort": "New",
+    "create": "Create Customer",
+    "created": "Customer created",
+    "empty": "There are no customers yet.",
+    "delete": "Delete",
+    "deleteCustomer": "Delete Customer",
+    "deleteDialog1": "Are you sure you want to delete",
+    "deleteDialog2": "Its clients will not be deleted, only unlinked.",
+    "clientCount": "no clients | 1 client | {count} clients",
+    "clients": "Clients",
+    "noClients": "No clients linked yet.",
+    "remove": "Remove",
+    "add": "Add",
+    "pickClient": "Select a client...",
+    "pickClientElsewhere": "{name} (currently: {customer})",
+    "manage": "Manage →",
+    "ungrouped": "Ungrouped"
+  },
   "dialog": {
     "change": "Change",
     "cancel": "Cancel",
@@ -219,7 +243,12 @@
       "address6": "IPv6 Address",
       "serverAllowedIps": "Server Allowed IPs",
       "firewallIps": "Firewall Allowed IPs",
-      "firewallIpsInvalid": "Invalid firewall IP entry. See docs for supported syntax."
+      "firewallIpsInvalid": "Invalid firewall IP entry. See docs for supported syntax.",
+      "customerId": "Customer"
+    },
+    "customer": {
+      "id": "Customer ID",
+      "name": "Name"
     },
     "user": {
       "username": "Username",

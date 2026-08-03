@@ -34,7 +34,12 @@ export type CreateClientType = Omit<
 
 export type UpdateClientType = Omit<
   CreateClientType,
-  'privateKey' | 'publicKey' | 'preSharedKey' | 'userId' | 'interfaceId'
+  | 'privateKey'
+  | 'publicKey'
+  | 'preSharedKey'
+  | 'userId'
+  | 'interfaceId'
+  | 'customerId'
 >;
 
 const name = z
@@ -119,6 +124,10 @@ const clientId = z.coerce.number({ message: t('zod.client.id') });
 
 export const ClientGetSchema = z.object({
   clientId: clientId,
+});
+
+export const ClientSetCustomerSchema = z.object({
+  customerId: z.number({ message: t('zod.client.customerId') }).nullable(),
 });
 
 export type ClientCreateFromExistingType = Pick<

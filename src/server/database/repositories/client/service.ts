@@ -47,6 +47,13 @@ function createPreparedStatement(db: DBType) {
       .set({ enabled: sql.placeholder('enabled') as never as boolean })
       .where(eq(client.id, sql.placeholder('id')))
       .prepare(),
+    setCustomer: db
+      .update(client)
+      .set({
+        customerId: sql.placeholder('customerId') as never as number | null,
+      })
+      .where(eq(client.id, sql.placeholder('id')))
+      .prepare(),
     delete: db
       .delete(client)
       .where(eq(client.id, sql.placeholder('id')))
@@ -303,6 +310,10 @@ export class ClientService {
 
   toggle(id: ID, enabled: boolean) {
     return this.#statements.toggle.execute({ id, enabled });
+  }
+
+  setCustomer(id: ID, customerId: ID | null) {
+    return this.#statements.setCustomer.execute({ id, customerId });
   }
 
   delete(id: ID) {
