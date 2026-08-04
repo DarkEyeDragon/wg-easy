@@ -276,6 +276,7 @@ export class ClientService {
           name,
           userId: source.userId,
           interfaceId: source.interfaceId,
+          customerId: source.customerId,
           expiresAt: null,
           privateKey,
           publicKey,

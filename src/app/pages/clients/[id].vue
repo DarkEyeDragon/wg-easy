@@ -263,39 +263,37 @@ const data = toRef(_data.value);
 const customersStore = useCustomersStore();
 customersStore.refresh();
 
+// Locally staged, only sent to the server (via a separate call, since
+// customerId isn't part of ClientUpdateSchema) when Save is pressed.
+const originalCustomerId = ref<number | null>(data.value?.customerId ?? null);
+
 const customerSelectValue = computed(() =>
   data.value?.customerId != null ? String(data.value.customerId) : 'none'
 );
 
-const _setCustomer = useSubmit(
-  (body) =>
-    $fetch(`/api/client/${id}/customer`, {
-      method: 'post',
-      body,
-    }),
-  {
-    revert: async () => {
-      await refresh();
-      data.value = toRef(_data.value).value;
-    },
-    noSuccessToast: true,
-  }
-);
-
 function onCustomerChange(value: string | undefined) {
-  if (value === undefined) {
+  if (value === undefined || !data.value) {
     return;
   }
-  const customerId = value === 'none' ? null : Number(value);
-  return _setCustomer({ customerId });
+  data.value.customerId = value === 'none' ? null : Number(value);
 }
 
 const _submit = useSubmit(
-  (data) =>
-    $fetch(`/api/client/${id}`, {
+  async (payload) => {
+    const { customerId } = payload as { customerId: number | null };
+
+    await $fetch(`/api/client/${id}`, {
       method: 'post',
-      body: data,
-    }),
+      body: payload,
+    });
+
+    if (customerId !== originalCustomerId.value) {
+      await $fetch(`/api/client/${id}/customer`, {
+        method: 'post',
+        body: { customerId },
+      });
+    }
+  },
   {
     revert: async (success) => {
       if (success) {
@@ -314,6 +312,7 @@ function submit() {
 async function revert() {
   await refresh();
   data.value = toRef(_data.value).value;
+  originalCustomerId.value = data.value?.customerId ?? null;
 }
 
 const _deleteClient = useSubmit(
