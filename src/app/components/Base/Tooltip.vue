@@ -11,7 +11,7 @@
       </TooltipTrigger>
       <TooltipPortal>
         <TooltipContent
-          class="select-none whitespace-pre-line rounded bg-gray-600 px-3 py-2 text-sm leading-none text-white shadow-lg will-change-[transform,opacity]"
+          class="z-[110] select-none whitespace-pre-line rounded bg-gray-600 px-3 py-2 text-sm leading-none text-white shadow-lg will-change-[transform,opacity]"
           :side-offset="5"
         >
           {{ text }}
