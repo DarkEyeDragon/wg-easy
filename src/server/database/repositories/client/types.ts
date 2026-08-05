@@ -73,9 +73,13 @@ const serverAllowedIps = z.array(AddressSchema, {
   message: t('zod.client.serverAllowedIps'),
 });
 
+const clientRole = z.enum(['client', 'router']);
+
 export const ClientCreateSchema = z.object({
   name: name,
   expiresAt: expiresAt,
+  customerId: z.number().nullable().optional(),
+  type: clientRole.nullable().optional(),
 });
 
 export type ClientCreateType = z.infer<typeof ClientCreateSchema>;

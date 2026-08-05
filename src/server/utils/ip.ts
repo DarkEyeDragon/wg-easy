@@ -45,6 +45,59 @@ export function nextIPFromUsedAddresses(
   return address;
 }
 
+/**
+ * Whether this CIDR leaves a whole spare octet for a customer's address
+ * range, on top of the last octet used for the client/router role.
+ */
+export function isRangeEligible(cidr: ParsedCidr) {
+  return Number(cidr.prefix) <= 16;
+}
+
+/** Smallest free octet (1-254) not already used as some other customer's range. */
+export function nextRangeOctet(usedOctets: Set<number>) {
+  for (let octet = 1; octet <= 254; octet++) {
+    if (!usedOctets.has(octet)) {
+      return octet;
+    }
+  }
+
+  throw new Error('Maximum number of customer ranges reached', {
+    cause: 'IPv4 range octet pool exhausted',
+  });
+}
+
+/** Builds `<cidr base>.<rangeOctet>.<lastOctet>`, e.g. 10.8.5.3 for a 10.8.0.0/16 base. */
+export function buildRangeAddress(
+  cidr: ParsedCidr,
+  rangeOctet: number,
+  lastOctet: number
+) {
+  return stringifyIp({
+    number: cidr.start + BigInt(rangeOctet) * 256n + BigInt(lastOctet),
+    version: 4,
+  });
+}
+
+/**
+ * Smallest free octet >= startOctet (up to 254), skipping reserved (e.g. the
+ * router's octet) and already-used octets within a customer's range.
+ */
+export function nextClientOctetInRange(
+  startOctet: number,
+  reservedOctets: Set<number>,
+  usedOctets: Set<number>
+) {
+  for (let octet = startOctet; octet <= 254; octet++) {
+    if (!reservedOctets.has(octet) && !usedOctets.has(octet)) {
+      return octet;
+    }
+  }
+
+  throw new Error('Maximum number of clients reached', {
+    cause: 'IPv4 customer range exhausted',
+  });
+}
+
 // use opendns to get public ip
 const dnsServers = {
   ip4: ['208.67.222.222'],

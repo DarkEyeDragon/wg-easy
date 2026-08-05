@@ -57,6 +57,13 @@
       "when": 1785762934229,
       "tag": "0007_mean_banshee",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1785847695478,
+      "tag": "0008_aromatic_carlie_cooper",
+      "breakpoints": true
     }
   ]
 }

@@ -46,6 +46,18 @@
           :label="$t('general.persistentKeepalive')"
           :description="$t('admin.config.persistentKeepaliveDesc')"
         />
+        <FormNumberField
+          id="defaultRouterOctet"
+          v-model="data.defaultRouterOctet"
+          :label="$t('general.defaultRouterOctet')"
+          :description="$t('admin.config.defaultRouterOctetDesc')"
+        />
+        <FormNumberField
+          id="defaultClientOctet"
+          v-model="data.defaultClientOctet"
+          :label="$t('general.defaultClientOctet')"
+          :description="$t('admin.config.defaultClientOctetDesc')"
+        />
       </FormGroup>
       <FormGroup v-if="globalStore.information?.isAwg">
         <FormHeading>{{ $t('awg.obfuscationParameters') }}</FormHeading>

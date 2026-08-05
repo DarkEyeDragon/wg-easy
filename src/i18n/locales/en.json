@@ -38,6 +38,8 @@
     "allowedIps": "Allowed IPs",
     "dns": "DNS",
     "persistentKeepalive": "Persistent Keepalive",
+    "defaultRouterOctet": "Default Router Octet",
+    "defaultClientOctet": "Default Client Octet",
     "logout": "Logout",
     "continue": "Continue",
     "host": "Host",
@@ -98,6 +100,8 @@
     "name": "Name",
     "expireDate": "Expire Date",
     "expireDateDesc": "Date the client will be disabled. Blank for permanent",
+    "isRouter": "Router",
+    "isRouterDesc": "Suggests the configured router IP for this customer's range instead of the next client IP",
     "delete": "Delete",
     "deleteClient": "Delete Client",
     "deleteDialog1": "Are you sure you want to delete",
@@ -202,6 +206,8 @@
       "dnsDesc": "DNS server clients will use (global config)",
       "mtuDesc": "MTU clients will use (only for new clients)",
       "persistentKeepaliveDesc": "Interval in seconds to send keepalives to the server. 0 = disabled (only for new clients)",
+      "defaultRouterOctetDesc": "Last IP octet suggested for a client marked as Router when creating it under a customer (e.g. 2 for 10.8.5.2)",
+      "defaultClientOctetDesc": "Starting last IP octet suggested for clients under a customer, incrementing for each additional one (e.g. 3 for 10.8.5.3)",
       "suggest": "Suggest",
       "suggestDesc": "Choose a IP-Address or Hostname for the Host field"
     },
@@ -263,7 +269,9 @@
       "totpCode": "TOTP Code"
     },
     "userConfig": {
-      "host": "Host"
+      "host": "Host",
+      "defaultRouterOctet": "Default Router Octet",
+      "defaultClientOctet": "Default Client Octet"
     },
     "general": {
       "sessionTimeout": "Session Timeout",

@@ -30,6 +30,18 @@ export const UserConfigSetupSchema = z.object({
   port: PortSchema,
 });
 
+const defaultRouterOctet = z
+  .number({ message: t('zod.userConfig.defaultRouterOctet') })
+  .int()
+  .min(1)
+  .max(254);
+
+const defaultClientOctet = z
+  .number({ message: t('zod.userConfig.defaultClientOctet') })
+  .int()
+  .min(1)
+  .max(254);
+
 export type UserConfigUpdateType = Omit<
   UserConfigType,
   'id' | 'createdAt' | 'updatedAt'
@@ -50,6 +62,8 @@ export const UserConfigUpdateSchema = schemaForType<UserConfigUpdateType>()(
     defaultI3: ISchema,
     defaultI4: ISchema,
     defaultI5: ISchema,
+    defaultRouterOctet: defaultRouterOctet,
+    defaultClientOctet: defaultClientOctet,
     host: host,
   })
 );

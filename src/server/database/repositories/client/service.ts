@@ -10,11 +10,17 @@ import type {
 } from './types';
 
 import Database from '#server/utils/Database';
-import { nextIP } from '#server/utils/ip';
+import {
+  buildRangeAddress,
+  isRangeEligible,
+  nextClientOctetInRange,
+  nextIP,
+  nextRangeOctet,
+} from '#server/utils/ip';
 import type { ID } from '#server/utils/types';
 import { wg } from '#server/utils/wgHelper';
 import type { DBType } from '#db/sqlite';
-import { wgInterface, userConfig } from '#db/schema';
+import { wgInterface, userConfig, customer } from '#db/schema';
 
 function nextCopyName(name: string, existingNames: string[]) {
   const taken = new Set(existingNames);
@@ -174,7 +180,7 @@ export class ClientService {
     return this.#statements.findById.execute({ id });
   }
 
-  async create({ name, expiresAt }: ClientCreateType) {
+  async create({ name, expiresAt, customerId, type }: ClientCreateType) {
     const privateKey = await wg.generatePrivateKey();
     const publicKey = await wg.getPublicKey(privateKey);
     const preSharedKey = await wg.generatePreSharedKey();
@@ -202,9 +208,61 @@ export class ClientService {
       }
 
       const ipv4Cidr = parseCidr(clientInterface.ipv4Cidr);
-      const ipv4Address = nextIP(4, ipv4Cidr, clients);
       const ipv6Cidr = parseCidr(clientInterface.ipv6Cidr);
       const ipv6Address = nextIP(6, ipv6Cidr, clients);
+
+      let ipv4Address: string;
+
+      if (customerId != null && isRangeEligible(ipv4Cidr)) {
+        const customerRow = await tx.query.customer
+          .findFirst({ where: eq(customer.id, customerId) })
+          .execute();
+
+        if (!customerRow) {
+          throw new Error('Customer not found');
+        }
+
+        let rangeOctet = customerRow.ipv4RangeOctet;
+
+        if (rangeOctet == null) {
+          const otherCustomers = await tx.query.customer.findMany().execute();
+          const usedRangeOctets = new Set(
+            otherCustomers
+              .map((c) => c.ipv4RangeOctet)
+              .filter((octet) => octet != null)
+          );
+          rangeOctet = nextRangeOctet(usedRangeOctets);
+
+          await tx
+            .update(customer)
+            .set({ ipv4RangeOctet: rangeOctet })
+            .where(eq(customer.id, customerId))
+            .execute();
+        }
+
+        const lastOctet =
+          type === 'router'
+            ? clientConfig.defaultRouterOctet
+            : nextClientOctetInRange(
+                clientConfig.defaultClientOctet,
+                new Set([clientConfig.defaultRouterOctet]),
+                new Set(
+                  clients
+                    .filter((c) => c.customerId === customerId)
+                    .map((c) => Number(c.ipv4Address.split('.').at(-1)))
+                )
+              );
+
+        ipv4Address = buildRangeAddress(ipv4Cidr, rangeOctet, lastOctet);
+
+        if (clients.some((c) => c.ipv4Address === ipv4Address)) {
+          throw new Error(`IPv4 address ${ipv4Address} is already in use`, {
+            cause: 'IPv4 address already assigned',
+          });
+        }
+      } else {
+        ipv4Address = nextIP(4, ipv4Cidr, clients);
+      }
 
       return await tx
         .insert(client)
@@ -213,6 +271,7 @@ export class ClientService {
           // TODO: properly assign user id
           userId: 1,
           interfaceId: 'wg0',
+          customerId: customerId ?? null,
           expiresAt,
           privateKey,
           publicKey,

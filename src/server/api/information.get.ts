@@ -19,5 +19,6 @@ export default defineEventHandler(async () => {
     insecure,
     isAwg,
     firewallEnabled: wgInterface.firewallEnabled,
+    ipv4Cidr: wgInterface.ipv4Cidr,
   };
 });
