@@ -27,6 +27,17 @@
         />
       </FormGroup>
       <FormGroup>
+        <FormHeading
+          :description="$t('admin.config.defaultServerAllowedIpsDesc')"
+        >
+          {{ $t('general.serverAllowedIps') }}
+        </FormHeading>
+        <FormArrayField
+          v-model="data.defaultServerAllowedIps"
+          name="defaultServerAllowedIps"
+        />
+      </FormGroup>
+      <FormGroup>
         <FormHeading :description="$t('admin.config.dnsDesc')">
           {{ $t('general.dns') }}
         </FormHeading>

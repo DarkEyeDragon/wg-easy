@@ -36,6 +36,7 @@
     "addPassword": "Add Password",
     "mtu": "MTU",
     "allowedIps": "Allowed IPs",
+    "serverAllowedIps": "Server Allowed IPs",
     "dns": "DNS",
     "persistentKeepalive": "Persistent Keepalive",
     "defaultRouterOctet": "Default Router Octet",
@@ -203,6 +204,7 @@
       "hostDesc": "Public hostname clients will connect to (invalidates config)",
       "portDesc": "Public UDP port clients will connect to (invalidates config, you probably want to change Interface Port too)",
       "allowedIpsDesc": "Allowed IPs clients will use (global config)",
+      "defaultServerAllowedIpsDesc": "Extra IPs the server will route to new clients, added on top of the client's own address (global config)",
       "dnsDesc": "DNS server clients will use (global config)",
       "mtuDesc": "MTU clients will use (only for new clients)",
       "persistentKeepaliveDesc": "Interval in seconds to send keepalives to the server. 0 = disabled (only for new clients)",
@@ -271,7 +273,8 @@
     "userConfig": {
       "host": "Host",
       "defaultRouterOctet": "Default Router Octet",
-      "defaultClientOctet": "Default Client Octet"
+      "defaultClientOctet": "Default Client Octet",
+      "defaultServerAllowedIps": "Default Server Allowed IPs"
     },
     "general": {
       "sessionTimeout": "Session Timeout",

@@ -288,7 +288,11 @@ export class ClientService {
           i4: clientConfig.defaultI4,
           i5: clientConfig.defaultI5,
           persistentKeepalive: clientConfig.defaultPersistentKeepalive,
-          serverAllowedIps: [],
+          allowedIps: [`${ipv4Address}/32`],
+          serverAllowedIps: [
+            `${ipv4Address}/32`,
+            ...clientConfig.defaultServerAllowedIps,
+          ],
           enabled: true,
         })
         .returning({ clientId: client.id })

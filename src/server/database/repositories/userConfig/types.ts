@@ -4,6 +4,7 @@ import z from 'zod';
 import type { userConfig } from './schema';
 
 import {
+  AddressSchema,
   AllowedIpsSchema,
   DnsSchema,
   ISchema,
@@ -42,6 +43,10 @@ const defaultClientOctet = z
   .min(1)
   .max(254);
 
+const defaultServerAllowedIps = z.array(AddressSchema, {
+  message: t('zod.userConfig.defaultServerAllowedIps'),
+});
+
 export type UserConfigUpdateType = Omit<
   UserConfigType,
   'id' | 'createdAt' | 'updatedAt'
@@ -64,6 +69,7 @@ export const UserConfigUpdateSchema = schemaForType<UserConfigUpdateType>()(
     defaultI5: ISchema,
     defaultRouterOctet: defaultRouterOctet,
     defaultClientOctet: defaultClientOctet,
+    defaultServerAllowedIps: defaultServerAllowedIps,
     host: host,
   })
 );

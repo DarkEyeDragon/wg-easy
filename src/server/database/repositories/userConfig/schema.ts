@@ -28,6 +28,10 @@ export const userConfig = sqliteTable('user_configs_table', {
   defaultI5: text('default_i5'),
   defaultRouterOctet: int('default_router_octet').notNull().default(2),
   defaultClientOctet: int('default_client_octet').notNull().default(3),
+  defaultServerAllowedIps: text('default_server_allowed_ips', { mode: 'json' })
+    .$type<string[]>()
+    .notNull()
+    .default(sql`'["192.168.0.0/24"]'`),
   host: text().notNull(),
   port: int().notNull(),
   createdAt: text('created_at')
